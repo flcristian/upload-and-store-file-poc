@@ -27,17 +27,15 @@ public class TemplatesController : TemplatesApiController
             return new BadRequestObjectResult("Only .docx files are allowed.");
         }
         
-        Template template = null!;
+        string name = file.FileName;
         try
         {
-            template = await _queryService.GetTemplateByName(file.FileName);
+            await _queryService.GetTemplateByName(name);
 
-            template = await _commandService.RenameTemplate(template);
+            name = await _commandService.RenameUntilUnique(name);
         }
-        catch (ItemDoesNotExist)
-        {
-            template = await _commandService.CreateTemplate(file.FileName);
-        }
+        catch (ItemDoesNotExist) { }
+        Template template = await _commandService.CreateTemplate(name);
         
         if (file != null! && file.Length > 0)
         {
@@ -57,7 +55,7 @@ public class TemplatesController : TemplatesApiController
 
             return new OkObjectResult(template);
         }
-
+        
         return new BadRequestObjectResult("Ok");
     }
 

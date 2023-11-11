@@ -15,11 +15,11 @@ public class TemplateCommandService : ITemplateCommandService
         _repository = repository;
     }
 
-    public async Task<Template> RenameTemplate(Template template)
+    public async Task<String> RenameUntilUnique(string name)
     {
-        while (await _repository.GetByNameAsync(template.Name) != null)
+        while (await _repository.GetByNameAsync(name) != null)
         {
-            string[] parts = template.Name.Split('.');
+            string[] parts = name.Split('.');
             int last = parts.Length - 2;
             int index = (int)char.GetNumericValue(parts[last][parts[last].Length - 1]);
 
@@ -32,10 +32,10 @@ public class TemplateCommandService : ITemplateCommandService
                 parts[last] = parts[last].Substring(0, parts[last].Length - 1) + Convert.ToChar('0' + index + 1);
             }
 
-            template.Name = string.Join(".", parts);
+            name = string.Join(".", parts);
         }
 
-        return template;
+        return name;
     }
 
     public async Task<Template> CreateTemplate(string name)
